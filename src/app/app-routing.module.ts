@@ -20,24 +20,10 @@ const routes: Routes = [
       ),
   },
   {
-    path: 'face-detection',
+    path: 'map',
     loadChildren: () =>
-      import('./modules/face-detection/face-detection.module').then(
-        (m) => m.FaceDetectionModule,
-      ),
-  },
-  {
-    path: 'face-mesh-detection',
-    loadChildren: () =>
-      import('./modules/face-mesh-detection/face-mesh-detection.module').then(
-        (m) => m.FaceMeshDetectionModule,
-      ),
-  },
-  {
-    path: 'selfie-segmentation',
-    loadChildren: () =>
-      import('./modules/selfie-segmentation/selfie-segmentation.module').then(
-        (m) => m.SelfieSegmentationModule,
+      import('./modules/map/map.component').then(
+        (m) => m.MapComponent,
       ),
   },
   {

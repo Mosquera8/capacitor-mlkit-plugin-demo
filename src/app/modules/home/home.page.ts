@@ -8,25 +8,13 @@ import { Component } from '@angular/core';
 export class HomePage {
   public plugins = [
     {
-      name: 'Barcode Scanning',
+      name: 'Escanea codigo ganador',
       url: '/barcode-scanning',
     },
     {
-      name: 'Face Detection',
-      url: '/face-detection',
-    },
-    {
-      name: 'Face Mesh Detection',
-      url: '/face-mesh-detection',
-    },
-    {
-      name: 'Selfie Segmentation',
-      url: '/selfie-segmentation',
-    },
-    {
-      name: 'Translation',
-      url: '/translation',
-    },
+      name: 'Mapa',
+      url:'/map',
+    }
   ];
 
   constructor() {}

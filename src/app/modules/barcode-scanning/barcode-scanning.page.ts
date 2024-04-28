@@ -15,6 +15,7 @@ import { BarcodeScanningModalComponent } from './barcode-scanning-modal.componen
   templateUrl: './barcode-scanning.page.html',
   styleUrls: ['./barcode-scanning.page.scss'],
 })
+
 export class BarcodeScanningPage implements OnInit {
   public readonly barcodeFormat = BarcodeFormat;
   public readonly lensFacing = LensFacing;
@@ -29,14 +30,13 @@ export class BarcodeScanningPage implements OnInit {
   public isSupported = false;
   public isPermissionGranted = false;
 
-  private readonly GH_URL =
-    'https://github.com/capawesome-team/capacitor-barcode-scanning';
-
+ 
   constructor(
     private readonly dialogService: DialogService,
     private readonly ngZone: NgZone,
   ) {}
-
+  
+  // Google y permisos de camara 
   public ngOnInit(): void {
     BarcodeScanner.isSupported().then((result) => {
       this.isSupported = result.supported;
@@ -61,63 +61,71 @@ export class BarcodeScanningPage implements OnInit {
     });
   }
 
+  // Scan solo libreria QR
   public async startScan(): Promise<void> {
-    const formats = this.formGroup.get('formats')?.value || [];
-    const lensFacing =
-      this.formGroup.get('lensFacing')?.value || LensFacing.Back;
     const element = await this.dialogService.showModal({
       component: BarcodeScanningModalComponent,
-      // Set `visibility` to `visible` to show the modal (see `src/theme/variables.scss`)
       cssClass: 'barcode-scanning-modal',
       showBackdrop: false,
       componentProps: {
-        formats: formats,
-        lensFacing: lensFacing,
+        formats: [BarcodeFormat.QrCode], // Usamos solo el formato QrCode
+        lensFacing: LensFacing.Back, // Definimos el valor de lensFacing
       },
     });
-    element.onDidDismiss().then((result) => {
+    element.onDidDismiss().then(async (result) => {
       const barcode: Barcode | undefined = result.data?.barcode;
       if (barcode) {
         this.barcodes = [barcode];
+
+        // Almacenar información del código QR en el almacenamiento local
+        const qrData = {
+          coordinates: barcode.cornerPoints?.toString() || '',
+          id: barcode.rawValue || '',
+          date: new Date().toISOString(),
+        };
+        localStorage.setItem('qrData', JSON.stringify(qrData));
       }
     });
   }
 
+  // De imagen coger el QR
   public async readBarcodeFromImage(): Promise<void> {
     const { files } = await FilePicker.pickImages({ limit: 1 });
     const path = files[0]?.path;
     if (!path) {
       return;
     }
-    const formats = this.formGroup.get('formats')?.value || [];
     const { barcodes } = await BarcodeScanner.readBarcodesFromImage({
       path,
-      formats,
+      formats: [BarcodeFormat.QrCode], // Leemos solo códigos QR de la imagen seleccionada
     });
     this.barcodes = barcodes;
-  }
 
+    // Almacenar información de los códigos QR en el almacenamiento local
+    barcodes.forEach((barcode: Barcode) => {
+      const qrData = {
+        coordinates: barcode.cornerPoints?.toString() || '',
+        id: barcode.rawValue || '',
+        date: new Date().toISOString(),
+      };
+      localStorage.setItem('qrData', JSON.stringify(qrData));
+    });
+  }
+  // Promesa del Scan
   public async scan(): Promise<void> {
-    const formats = this.formGroup.get('formats')?.value || [];
     const { barcodes } = await BarcodeScanner.scan({
-      formats,
+      formats: [BarcodeFormat.QrCode], // Escaneamos solo códigos QR
     });
     this.barcodes = barcodes;
   }
 
-  public async openSettings(): Promise<void> {
-    await BarcodeScanner.openSettings();
-  }
-
+  // Consulta de google scan
   public async installGoogleBarcodeScannerModule(): Promise<void> {
     await BarcodeScanner.installGoogleBarcodeScannerModule();
   }
-
+  // Permisos celular
   public async requestPermissions(): Promise<void> {
     await BarcodeScanner.requestPermissions();
   }
 
-  public openOnGithub(): void {
-    window.open(this.GH_URL, '_blank');
-  }
 }
