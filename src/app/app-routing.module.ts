@@ -27,13 +27,6 @@ const routes: Routes = [
       ),
   },
   {
-    path: 'translation',
-    loadChildren: () =>
-      import('./modules/translation/translation.module').then(
-        (m) => m.TranslationModule,
-      ),
-  },
-  {
     path: '**',
     redirectTo: 'home',
   },
